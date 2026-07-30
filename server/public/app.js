@@ -152,7 +152,7 @@ function renderFiles() {
 /* ---------- Print all ---------- */
 printBtn.addEventListener("click", async () => {
   if (!token()) {
-    showToast("Add your API key in settings", "error");
+    showToast("Add your API key in Settings (⚙️, top-right)", "error");
     settings.classList.add("open");
     return;
   }
@@ -193,7 +193,10 @@ let fetching = false;
 
 async function refreshQueue() {
   if (!token()) {
-    jobsEl.innerHTML = emptyRow("Add your API key to see the queue");
+    jobsEl.innerHTML = `<li class="job empty"><button type="button" id="queueSettingsLink" class="link">Add your API key in Settings (⚙️, top-right) to see the queue</button></li>`;
+    document
+      .getElementById("queueSettingsLink")
+      ?.addEventListener("click", () => settings.classList.add("open"));
     return;
   }
   if (fetching) return;
