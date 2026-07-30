@@ -29,8 +29,35 @@ tokenInput.value = token();
 $("#settingsBtn").addEventListener("click", () => settings.classList.add("open"));
 $("#closeSettings").addEventListener("click", () => settings.classList.remove("open"));
 settings.addEventListener("click", (e) => {
-  if (e.target === settings) settings.classList.remove("open");
+  if (e.target === settings) settings.classList.remove("open"); // tap outside to close
 });
+
+// Swipe the sheet down to dismiss
+const sheet = settings.querySelector(".sheet");
+let dragStartY = null;
+let dragging = false;
+sheet.addEventListener("pointerdown", (e) => {
+  if (e.target.closest("input, button")) return; // let controls work normally
+  dragging = true;
+  dragStartY = e.clientY;
+  sheet.style.transition = "none";
+  sheet.setPointerCapture(e.pointerId);
+});
+sheet.addEventListener("pointermove", (e) => {
+  if (!dragging) return;
+  const dy = Math.max(0, e.clientY - dragStartY);
+  sheet.style.transform = `translateY(${dy}px)`;
+});
+function endSheetDrag(e) {
+  if (!dragging) return;
+  dragging = false;
+  const dy = Math.max(0, e.clientY - dragStartY);
+  sheet.style.transition = "";
+  sheet.style.transform = "";
+  if (dy > 90) settings.classList.remove("open"); // dragged far enough → dismiss
+}
+sheet.addEventListener("pointerup", endSheetDrag);
+sheet.addEventListener("pointercancel", endSheetDrag);
 $("#saveToken").addEventListener("click", () => {
   localStorage.setItem("pb_token", tokenInput.value.trim());
   settings.classList.remove("open");

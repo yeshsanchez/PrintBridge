@@ -430,6 +430,7 @@ body {
   padding: 12px 22px calc(env(safe-area-inset-bottom) + 22px);
   transform: translateY(100%);
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  touch-action: none;
 }
 .sheet-overlay.open .sheet {
   transform: translateY(0);
@@ -440,6 +441,7 @@ body {
   border-radius: 3px;
   background: #dfe3ea;
   margin: 0 auto 14px;
+  cursor: grab;
 }
 .sheet h3 {
   margin: 0 0 16px;
