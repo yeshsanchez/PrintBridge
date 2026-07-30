@@ -1,0 +1,165 @@
+========================================================================
+ PrintBridge — START HERE
+ (what this is, how it works, and what YOU need to do)
+========================================================================
+
+WHAT IT IS
+------------------------------------------------------------------------
+Your Canon PIXMA G1010 is USB-only — no wi-fi. PrintBridge turns this
+MacBook (the one plugged into the printer) into a little print server so
+ANY device on your wi-fi (phone, another laptop) can print by opening a
+web page and picking a file. No app to install on the other devices.
+
+
+HOW IT WORKS (the whole trick)
+------------------------------------------------------------------------
+We did NOT write a printer driver. macOS already knows how to talk to the
+G1010 through its built-in printing system called CUPS (using the command
+line tools `lp` and `lpstat`). PrintBridge is just a small middleman:
+
+   [phone / laptop]                     <- any device on your wi-fi
+        |
+        |  1. uploads a file over HTTP (via the web page)
+        v
+   [this MacBook: PrintBridge server]   <- a small Node.js program
+        |
+        |  2. hands the file to CUPS with:  lp -d <queue> <file>
+        v
+   [macOS CUPS print queue]             <- Canon's driver lives here
+        |
+        |  3. USB
+        v
+   [Canon PIXMA G1010]                  <- prints!
+
+So all PrintBridge does is: receive a file -> run `lp` -> done.
+It also has a password (an "API key") so random people on the wi-fi
+can't spam your printer.
+
+The 4 things the server offers:
+  GET  /            -> the upload web page
+  POST /print       -> send a file to print (needs the API key)
+  GET  /status      -> see what's in the print queue (needs the API key)
+  GET  /health      -> quick "is it alive?" check (no key needed)
+
+
+CURRENT STATE (important!)
+------------------------------------------------------------------------
+The code is DONE and pushed to GitHub (private):
+    https://github.com/yeshsanchez/PrintBridge
+
+BUT: the printer isn't set up on this Mac yet. Right now `lpstat -p`
+says "No destinations added" — meaning macOS doesn't see the G1010.
+Everything software-side has been tested and works; the only thing left
+is hooking up the real printer. That's the list below.
+
+
+========================================================================
+ WHAT YOU NEED TO DO
+========================================================================
+
+STEP 1 — Install Canon's driver & plug in the printer
+------------------------------------------------------------------------
+  * Download the official "Canon PIXMA G1010" macOS driver from Canon's
+    support site and install it.
+  * Plug the printer into this Mac by USB, turn it on.
+  * Add it in: System Settings -> Printers & Scanners.
+  * Print a test page from Preview to confirm macOS can print at all.
+    (If macOS can't print, PrintBridge can't either — fix this first.)
+
+
+STEP 2 — Find your printer's "queue name"
+------------------------------------------------------------------------
+  Open Terminal and run:
+
+      lpstat -p
+
+  You'll see something like:
+      printer Canon_G1010_series is idle.
+
+  The word after "printer" (e.g. Canon_G1010_series) is your QUEUE NAME.
+  Copy it — you need it in the next step.
+
+
+STEP 3 — Fill in the config file (.env)
+------------------------------------------------------------------------
+  There's already a .env file in this folder with dummy test values.
+  Open it and set the real values:
+
+      PORT=3000
+      CUPS_QUEUE_NAME=Canon_G1010_series     <- paste YOUR queue name here
+      API_KEY=some-long-random-password       <- see below
+      NODE_ENV=production
+
+  To make a good random API key, run this in Terminal and paste the result:
+
+      openssl rand -hex 24
+
+  (The API key is the password other devices will type on the web page.)
+
+
+STEP 4 — Start it and test on THIS Mac
+------------------------------------------------------------------------
+  In Terminal, from this folder:
+
+      npm start
+
+  Then open http://localhost:3000 in a browser, paste the API key,
+  pick a PDF/JPG/PNG, and hit Print. It should come out of the G1010.
+
+  (Press Ctrl+C in Terminal to stop it.)
+
+
+STEP 5 — Test from your PHONE (the whole point)
+------------------------------------------------------------------------
+  * Make sure your phone is on the SAME wi-fi as this Mac.
+  * On your phone's browser, go to:
+
+        http://Yeshuas-MacBook-Pro.local:3000
+
+    (That's this Mac's network name. If it won't load, use the Mac's IP
+     instead — find it with:  ipconfig getifaddr en0  — then visit
+     http://THAT-IP:3000 )
+  * Enter the API key, pick a file, Print. Watch it print!
+
+
+STEP 6 — Make it run by itself (auto-start on login)
+------------------------------------------------------------------------
+  So you don't have to run `npm start` every time, install the
+  "LaunchAgent" (it starts PrintBridge automatically at login and
+  restarts it if it crashes):
+
+      cp "launchd/com.yeshua.printbridge.plist" ~/Library/LaunchAgents/
+      launchctl load ~/Library/LaunchAgents/com.yeshua.printbridge.plist
+
+  Logs (if something breaks) go to:
+      ~/Library/Logs/printbridge.out.log
+      ~/Library/Logs/printbridge.err.log
+
+  To stop/restart it after changing settings:
+      launchctl unload ~/Library/LaunchAgents/com.yeshua.printbridge.plist
+      launchctl load   ~/Library/LaunchAgents/com.yeshua.printbridge.plist
+
+
+STEP 7 — Stop the Mac from sleeping (or it can't receive jobs)
+------------------------------------------------------------------------
+  A sleeping Mac can't accept print jobs. Turn on:
+      System Settings -> Displays -> Advanced ->
+      "Prevent automatic sleeping on power adapter when display is off"
+  Keep it plugged in and the lid open (or clamshell on external power).
+
+
+========================================================================
+ QUICK TROUBLESHOOTING
+========================================================================
+  "Missing required env var" on start .. fill in CUPS_QUEUE_NAME + API_KEY in .env
+  "500 Failed to submit print job" ..... wrong queue name, or printer off/offline.
+                                         Re-run `lpstat -p`, check macOS can print.
+  "401 Invalid or missing API key" ..... the key typed doesn't match API_KEY in .env
+  Phone can't load the page ............ same wi-fi? Mac awake? Try the IP address.
+                                         Some routers block device-to-device
+                                         ("AP isolation") — turn that off.
+  Prints garbage ....................... only send PDF/JPG/PNG. Convert weird files
+                                         to PDF first.
+
+Full details are in README.md. The original spec is in PrintBridge_PROJECT.md.
+========================================================================
