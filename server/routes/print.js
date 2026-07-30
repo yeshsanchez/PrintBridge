@@ -52,8 +52,14 @@ router.post('/', requireApiKey, (req, res) => {
     }
 
     const queue = process.env.CUPS_QUEUE_NAME;
+    const options = {
+      media: req.body.media,
+      orientation: req.body.orientation,
+      color: req.body.color,
+      copies: req.body.copies,
+    };
     try {
-      const jobId = await printFile(req.file.path, queue);
+      const jobId = await printFile(req.file.path, queue, options);
       return res.json({ jobId, status: 'queued' });
     } catch (e) {
       const detail = process.env.NODE_ENV !== 'production' ? e.stderr || e.message : undefined;

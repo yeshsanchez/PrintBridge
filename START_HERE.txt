@@ -8,22 +8,30 @@ WHAT IT IS
 Your Canon PIXMA G1010 is USB-only — no wi-fi. PrintBridge turns this
 MacBook (the one plugged into the printer) into a little print server so
 ANY device on your wi-fi (phone, another laptop) can print by opening a
-web page and picking a file. No app to install on the other devices.
+web page. It looks and feels like a real app — but there's nothing to
+install on the other devices; they just open a link.
+
+What the app can do now:
+  * Pick ONE or MANY files at once and print them in a batch
+  * Set print options: Paper size, Layout, Color/B&W, Copies
+  * See a LIVE queue (updates on its own) with each job's status
+  * On an iPhone: open the link -> Share -> "Add to Home Screen" to get
+    a real app icon that opens full-screen
 
 
 HOW IT WORKS (the whole trick)
 ------------------------------------------------------------------------
 We did NOT write a printer driver. macOS already knows how to talk to the
-G1010 through its built-in printing system called CUPS (using the command
-line tools `lp` and `lpstat`). PrintBridge is just a small middleman:
+G1010 through its built-in printing system called CUPS (the command-line
+tools `lp` and `lpstat`). PrintBridge is just a small middleman:
 
    [phone / laptop]                     <- any device on your wi-fi
         |
-        |  1. uploads a file over HTTP (via the web page)
+        |  1. uploads a file over HTTP (via the web app)
         v
    [this MacBook: PrintBridge server]   <- a small Node.js program
         |
-        |  2. hands the file to CUPS with:  lp -d <queue> <file>
+        |  2. hands the file to CUPS with:  lp -d <queue> [options] <file>
         v
    [macOS CUPS print queue]             <- Canon's driver lives here
         |
@@ -35,22 +43,21 @@ So all PrintBridge does is: receive a file -> run `lp` -> done.
 It also has a password (an "API key") so random people on the wi-fi
 can't spam your printer.
 
-The 4 things the server offers:
-  GET  /            -> the upload web page
-  POST /print       -> send a file to print (needs the API key)
-  GET  /status      -> see what's in the print queue (needs the API key)
-  GET  /health      -> quick "is it alive?" check (no key needed)
+Your link (works from any device on either ZTE wi-fi band):
+   http://printbridge.local:3000
+(The "printbridge.local" name is already set up ✓ and follows the Mac
+even if its IP changes, so it won't break on restart.)
 
 
 CURRENT STATE (important!)
 ------------------------------------------------------------------------
-The code is DONE and pushed to GitHub (private):
+The app is DONE and pushed to GitHub (private):
     https://github.com/yeshsanchez/PrintBridge
 
 BUT: the printer isn't set up on this Mac yet. Right now `lpstat -p`
 says "No destinations added" — meaning macOS doesn't see the G1010.
-Everything software-side has been tested and works; the only thing left
-is hooking up the real printer. That's the list below.
+Everything software-side is built and tested; the only thing left is
+hooking up the real printer. That's the checklist below.
 
 
 ========================================================================
@@ -79,6 +86,16 @@ STEP 2 — Find your printer's "queue name"
   The word after "printer" (e.g. Canon_G1010_series) is your QUEUE NAME.
   Copy it — you need it in the next step.
 
+  >>> REMINDER (do this once the printer is installed): <<<
+  Get the G1010's REAL list of supported paper sizes + options with:
+
+      lpoptions -p <your-queue-name> -l
+
+  The app's Paper choices right now are just common presets
+  (A4 / Letter / Legal / 4x6). Once you have the real list from the
+  driver, tell Claude and we'll update the app's Paper/size options to
+  match exactly what the G1010 actually supports.
+
 
 STEP 3 — Fill in the config file (.env)
 ------------------------------------------------------------------------
@@ -94,7 +111,8 @@ STEP 3 — Fill in the config file (.env)
 
       openssl rand -hex 24
 
-  (The API key is the password other devices will type on the web page.)
+  (The API key is the password other devices type once in the app's
+   Settings — the gear icon, top-right.)
 
 
 STEP 4 — Start it and test on THIS Mac
@@ -103,24 +121,25 @@ STEP 4 — Start it and test on THIS Mac
 
       npm start
 
-  Then open http://localhost:3000 in a browser, paste the API key,
-  pick a PDF/JPG/PNG, and hit Print. It should come out of the G1010.
+  Then open http://localhost:3000 , tap the gear (settings) and paste the
+  API key, pick one or more PDF/JPG/PNG files, choose your options
+  (paper, layout, color, copies), and hit Print. It should come out of
+  the G1010.
 
   (Press Ctrl+C in Terminal to stop it.)
 
 
 STEP 5 — Test from your PHONE (the whole point)
 ------------------------------------------------------------------------
-  * Make sure your phone is on the SAME wi-fi as this Mac.
+  * Make sure your phone is on the SAME wi-fi (either ZTE band is fine).
   * On your phone's browser, go to:
 
         http://printbridge.local:3000
 
-    (That's this Mac's network name — it follows the Mac even if its IP
-     changes, so it won't break on restart. If it somehow won't load, use
-     the Mac's IP instead — find it with:  ipconfig getifaddr en0  — then
-     visit  http://THAT-IP:3000 )
-  * Enter the API key, pick a file, Print. Watch it print!
+    (If it somehow won't load, use the Mac's IP instead — find it with:
+     ipconfig getifaddr en0  — then visit  http://THAT-IP:3000 )
+  * Tap the gear, enter the API key, pick a file, Print. Watch it print!
+  * Optional: Share -> "Add to Home Screen" for an app icon.
 
 
 STEP 6 — Make it run by itself (auto-start on login)
@@ -150,6 +169,14 @@ STEP 7 — Stop the Mac from sleeping (or it can't receive jobs)
 
 
 ========================================================================
+ ALREADY DONE (no action needed) ✓
+========================================================================
+  * The app itself (UI, multi-file, options, live queue) is built.
+  * The "printbridge.local" web address is set up.
+  * Nothing needs installing on phones/other devices — just the link.
+
+
+========================================================================
  QUICK TROUBLESHOOTING
 ========================================================================
   "Missing required env var" on start .. fill in CUPS_QUEUE_NAME + API_KEY in .env
@@ -159,6 +186,9 @@ STEP 7 — Stop the Mac from sleeping (or it can't receive jobs)
   Phone can't load the page ............ same wi-fi? Mac awake? Try the IP address.
                                          Some routers block device-to-device
                                          ("AP isolation") — turn that off.
+  A paper size won't print right ....... the app's presets may not all match your
+                                         G1010. Get the real list with:
+                                         lpoptions -p <queue> -l  (see Step 2 reminder)
   Prints garbage ....................... only send PDF/JPG/PNG. Convert weird files
                                          to PDF first.
 

@@ -9,14 +9,34 @@ const LPSTAT = '/usr/bin/lpstat';
 
 const isDev = () => process.env.NODE_ENV !== 'production';
 
+// Whitelisted paper sizes. The real supported set comes from the driver
+// (`lpoptions -p <queue> -l`) once the G1010 is connected — refine then.
+const ALLOWED_MEDIA = new Set(['A4', 'Letter', 'Legal', 'A5', '4x6']);
+
 /**
- * Submit a file to a CUPS queue via `lp -d <queue> <file>`.
+ * Translate the UI's print options into `lp` CLI flags. Every value is whitelisted,
+ * so only known-good options reach lp; anything unrecognized is dropped and the
+ * printer default is used.
+ */
+function buildLpOptions({ media, orientation, color, copies } = {}) {
+  const args = [];
+  const n = parseInt(copies, 10);
+  if (Number.isInteger(n) && n > 1 && n <= 99) args.push('-n', String(n));
+  if (ALLOWED_MEDIA.has(media)) args.push('-o', `media=${media}`);
+  if (orientation === 'landscape') args.push('-o', 'orientation-requested=4');
+  if (color === 'grayscale') args.push('-o', 'print-color-mode=monochrome');
+  return args;
+}
+
+/**
+ * Submit a file to a CUPS queue via `lp -d <queue> [options] <file>`.
  * `execFile` (never `exec`) is used with an args array so user-controlled
- * filenames can never be interpreted by a shell.
+ * filenames and options can never be interpreted by a shell.
  * Returns the parsed CUPS job id, e.g. "G1010-123".
  */
-export async function printFile(filePath, queue) {
-  const { stdout } = await execFileAsync(LP, ['-d', queue, filePath]);
+export async function printFile(filePath, queue, options = {}) {
+  const args = ['-d', queue, ...buildLpOptions(options), filePath];
+  const { stdout } = await execFileAsync(LP, args);
   // Typical output: "request id is G1010-123 (1 file(s))"
   const match = stdout.match(/request id is (\S+)/);
   if (!match) {

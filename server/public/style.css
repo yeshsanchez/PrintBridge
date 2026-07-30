@@ -579,6 +579,77 @@ body {
   color: var(--mint-ink);
   background: var(--mint);
 }
+/* Print options */
+.options {
+  margin-top: 16px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 4px 16px;
+}
+.opt-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+.opt-row:last-child {
+  border-bottom: 0;
+}
+.opt-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+.seg {
+  display: inline-flex;
+  background: #eef0f4;
+  border-radius: 11px;
+  padding: 3px;
+  gap: 2px;
+}
+.seg-btn {
+  border: 0;
+  background: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+}
+.seg-btn.is-on {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(20, 22, 28, 0.12);
+}
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+}
+.stepper button {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 8px;
+  background: #eef0f4;
+  color: var(--ink);
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+#copiesVal {
+  min-width: 16px;
+  text-align: center;
+  font-weight: 700;
+}
+
 .job-status .live-dot {
   display: inline-block;
   width: 6px;

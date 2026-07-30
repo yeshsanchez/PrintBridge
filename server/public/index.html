@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="PrintBridge" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <link rel="stylesheet" href="/style.css?v=6" />
+    <link rel="stylesheet" href="/style.css?v=7" />
   </head>
   <body>
     <div class="app">
@@ -69,6 +69,41 @@
         </div>
       </section>
 
+      <!-- Print options (apply to every file in the batch) -->
+      <section class="options">
+        <div class="opt-row">
+          <span class="opt-label">Paper</span>
+          <div class="seg" id="optMedia">
+            <button type="button" class="seg-btn is-on" data-v="A4">A4</button>
+            <button type="button" class="seg-btn" data-v="Letter">Letter</button>
+            <button type="button" class="seg-btn" data-v="Legal">Legal</button>
+            <button type="button" class="seg-btn" data-v="4x6">4×6</button>
+          </div>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">Layout</span>
+          <div class="seg" id="optOrientation">
+            <button type="button" class="seg-btn is-on" data-v="portrait">Portrait</button>
+            <button type="button" class="seg-btn" data-v="landscape">Landscape</button>
+          </div>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">Color</span>
+          <div class="seg" id="optColor">
+            <button type="button" class="seg-btn is-on" data-v="color">Color</button>
+            <button type="button" class="seg-btn" data-v="grayscale">B&amp;W</button>
+          </div>
+        </div>
+        <div class="opt-row">
+          <span class="opt-label">Copies</span>
+          <div class="stepper">
+            <button type="button" id="copiesMinus" aria-label="Fewer copies">−</button>
+            <span id="copiesVal">1</span>
+            <button type="button" id="copiesPlus" aria-label="More copies">+</button>
+          </div>
+        </div>
+      </section>
+
       <button id="printBtn" class="print-btn" disabled>Print</button>
 
       <!-- Queue -->
@@ -103,6 +138,6 @@
       </div>
     </div>
 
-    <script src="/app.js?v=6"></script>
+    <script src="/app.js?v=7"></script>
   </body>
 </html>

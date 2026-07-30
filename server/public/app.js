@@ -176,6 +176,30 @@ function renderFiles() {
   printBtn.textContent = files.length === 1 ? "Print" : `Print ${files.length} files`;
 }
 
+/* ---------- Print options (shared across the batch) ---------- */
+const opts = { media: "A4", orientation: "portrait", color: "color", copies: 1 };
+function setupSeg(id, key) {
+  const group = document.getElementById(id);
+  group.addEventListener("click", (e) => {
+    const btn = e.target.closest(".seg-btn");
+    if (!btn) return;
+    group.querySelectorAll(".seg-btn").forEach((b) => b.classList.toggle("is-on", b === btn));
+    opts[key] = btn.dataset.v;
+  });
+}
+setupSeg("optMedia", "media");
+setupSeg("optOrientation", "orientation");
+setupSeg("optColor", "color");
+const copiesVal = $("#copiesVal");
+$("#copiesMinus").addEventListener("click", () => {
+  opts.copies = Math.max(1, opts.copies - 1);
+  copiesVal.textContent = opts.copies;
+});
+$("#copiesPlus").addEventListener("click", () => {
+  opts.copies = Math.min(99, opts.copies + 1);
+  copiesVal.textContent = opts.copies;
+});
+
 /* ---------- Print all ---------- */
 printBtn.addEventListener("click", async () => {
   if (!token()) {
@@ -193,6 +217,10 @@ printBtn.addEventListener("click", async () => {
     printBtn.textContent = total === 1 ? "Sending…" : `Printing ${i + 1}/${total}…`;
     const body = new FormData();
     body.append("file", files[i]);
+    body.append("media", opts.media);
+    body.append("orientation", opts.orientation);
+    body.append("color", opts.color);
+    body.append("copies", String(opts.copies));
     try {
       const res = await fetch("/print", {
         method: "POST",
