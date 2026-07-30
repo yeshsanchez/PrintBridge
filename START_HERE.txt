@@ -44,9 +44,11 @@ It also has a password (an "API key") so random people on the wi-fi
 can't spam your printer.
 
 Your link (works from any device on either ZTE wi-fi band):
-   http://printbridge.local:3000
-(The "printbridge.local" name is already set up ✓ and follows the Mac
-even if its IP changes, so it won't break on restart.)
+   http://192.168.1.7:3000
+Use the IP — it works across BOTH wi-fi bands. (The friendly name
+"printbridge.local" also works, but only when the device is on the SAME
+band as the Mac; this router doesn't pass the name between the 2.4G and
+5G bands. The IP has no such issue, so it's the one to bookmark.)
 
 
 CURRENT STATE (important!)
@@ -131,13 +133,17 @@ STEP 4 — Start it and test on THIS Mac
 
 STEP 5 — Test from your PHONE (the whole point)
 ------------------------------------------------------------------------
-  * Make sure your phone is on the SAME wi-fi (either ZTE band is fine).
+  * Make sure your phone is on the wi-fi (either ZTE band is fine).
   * On your phone's browser, go to:
 
-        http://printbridge.local:3000
+        http://192.168.1.7:3000
 
-    (If it somehow won't load, use the Mac's IP instead — find it with:
-     ipconfig getifaddr en0  — then visit  http://THAT-IP:3000 )
+    Type it exactly — with http:// and :3000 . This IP works across BOTH
+    bands. (The name http://printbridge.local:3000 also works, but only
+    when the phone is on the SAME band as the Mac, so prefer the IP.)
+
+    If the IP ever changes, find the new one on the Mac with:
+        ipconfig getifaddr en0
   * Tap the gear, enter the API key, pick a file, Print. Watch it print!
   * Optional: Share -> "Add to Home Screen" for an app icon.
 
@@ -183,9 +189,10 @@ STEP 7 — Stop the Mac from sleeping (or it can't receive jobs)
   "500 Failed to submit print job" ..... wrong queue name, or printer off/offline.
                                          Re-run `lpstat -p`, check macOS can print.
   "401 Invalid or missing API key" ..... the key typed doesn't match API_KEY in .env
-  Phone can't load the page ............ same wi-fi? Mac awake? Try the IP address.
-                                         Some routers block device-to-device
-                                         ("AP isolation") — turn that off.
+  Phone can't load the page ............ Use the IP (http://192.168.1.7:3000), NOT
+                                         printbridge.local — the name doesn't cross
+                                         wi-fi bands on this router. Also check: on
+                                         the wi-fi? Mac awake? http:// and :3000 typed?
   A paper size won't print right ....... the app's presets may not all match your
                                          G1010. Get the real list with:
                                          lpoptions -p <queue> -l  (see Step 2 reminder)

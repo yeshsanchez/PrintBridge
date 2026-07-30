@@ -133,19 +133,20 @@ devices will get connection-refused errors whenever the Mac has slept.
 
 ## Reaching it from other devices
 
-- The Mac is reachable on the LAN at **`http://printbridge.local:3000`**. This name follows
-  the Mac via Bonjour/mDNS no matter what IP the router assigns, so it keeps working across
-  restarts — bookmark it and forget about IP addresses.
-- The name comes from the Mac's **Local Hostname** (`scutil --get LocalHostName` → `printbridge`).
-  To set/change it: `sudo scutil --set LocalHostName printbridge`, or **System Settings →
-  General → Sharing → Local hostname → Edit**.
-- PrintBridge also advertises a **Bonjour** HTTP service named *PrintBridge*, so it shows up
-  in Bonjour-aware browsers/apps.
+- **Primary link: `http://192.168.1.7:3000`** (the Mac's LAN IP). This works from any device
+  on **either** wi-fi band. To keep the IP from changing, add a **DHCP reservation** in the
+  router (bind the Mac's MAC → `192.168.1.7`); in practice home routers usually keep handing
+  the same device the same IP anyway.
+- **`http://printbridge.local:3000`** also works, but **only when the device is on the same
+  wi-fi band as the Mac** — mDNS/Bonjour name resolution doesn't always cross between the
+  2.4 GHz and 5 GHz bands on consumer routers, so the raw IP is the reliable choice. The name
+  comes from the Mac's **Local Hostname** (`scutil --get LocalHostName`).
+- PrintBridge also advertises a **Bonjour** HTTP service named *PrintBridge* for discovery.
 
 ### End-to-end test from a second device
 
 1. Connect the second device (phone/laptop) to the **same wi-fi**.
-2. Open `http://printbridge.local:3000` (or the Mac's IP).
+2. Open `http://192.168.1.7:3000` (the Mac's LAN IP — works on either band).
 3. Enter the API key, choose a PDF/JPG/PNG, tap **Print**.
 4. Watch the **Queue** section update, and confirm the page prints on the G1010.
 
