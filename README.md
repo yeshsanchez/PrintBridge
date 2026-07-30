@@ -1,12 +1,15 @@
 # PrintBridge
 
-Turn a USB-connected MacBook into a wireless print server for the **Canon PIXMA G1010**.
+> **A self-hosted home print server.** Turn a Mac with a USB printer into a wireless printer
+> the whole household can use from any device — no cloud, no accounts, no app installs.
 
-PrintBridge is a small Node.js service that runs on the Mac physically connected to the
-G1010 over USB. It exposes a local-network HTTP API + web page so any device on the same
-wi-fi (phone, laptop, tablet) can upload a file and print it. PrintBridge does **not** talk
-to the printer directly — it hands files to macOS **CUPS** (`lp` / `lpstat`), which Canon's
-official driver already knows how to drive.
+PrintBridge is a small self-hosted Node.js app for the home. It runs on the Mac that's
+physically connected to a **Canon PIXMA G1010** over USB and serves a phone-friendly web app
+on your local wi-fi, so anyone in the house can print from their phone, tablet, or laptop
+with nothing to install. It doesn't talk to the printer directly — it hands files to macOS
+**CUPS** (`lp` / `lpstat`), which Canon's official driver already knows how to drive.
+
+Everything stays on your own network: no third-party services, no internet exposure.
 
 ```
 [phone / laptop] --HTTP--> [Mac: PrintBridge] --lp/lpstat--> [CUPS queue] --USB--> [Canon G1010]
