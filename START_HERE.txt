@@ -114,11 +114,12 @@ STEP 5 — Test from your PHONE (the whole point)
   * Make sure your phone is on the SAME wi-fi as this Mac.
   * On your phone's browser, go to:
 
-        http://Yeshuas-MacBook-Pro.local:3000
+        http://printbridge.local:3000
 
-    (That's this Mac's network name. If it won't load, use the Mac's IP
-     instead — find it with:  ipconfig getifaddr en0  — then visit
-     http://THAT-IP:3000 )
+    (That's this Mac's network name — it follows the Mac even if its IP
+     changes, so it won't break on restart. If it somehow won't load, use
+     the Mac's IP instead — find it with:  ipconfig getifaddr en0  — then
+     visit  http://THAT-IP:3000 )
   * Enter the API key, pick a file, Print. Watch it print!
 
 
