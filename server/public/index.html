@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PrintBridge</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <main class="card">
+      <header>
+        <h1>🖨️ PrintBridge</h1>
+        <p class="sub">Send a file to the Canon PIXMA G1010</p>
+      </header>
+
+      <label class="field">
+        <span>API key</span>
+        <input id="token" type="password" placeholder="paste your token" autocomplete="off" />
+      </label>
+
+      <label class="field">
+        <span>File <em>(PDF, JPG, PNG · max 25 MB)</em></span>
+        <input id="file" type="file" accept="application/pdf,image/jpeg,image/png" />
+      </label>
+
+      <button id="printBtn">Print</button>
+      <div id="result" class="result" hidden></div>
+
+      <section class="queue">
+        <div class="queue-head">
+          <h2>Queue</h2>
+          <button id="refreshBtn" class="link" type="button">Refresh</button>
+        </div>
+        <ul id="jobs">
+          <li class="muted">—</li>
+        </ul>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>
