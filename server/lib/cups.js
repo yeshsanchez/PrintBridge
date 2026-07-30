@@ -71,3 +71,37 @@ export async function printerInfo(queue) {
     };
   }
 }
+
+/**
+ * Full queue snapshot for the live view: the printer's state plus the job list,
+ * where the job currently being printed is flagged so the UI can show its status.
+ * Returns { printerState, jobs: [{ jobId, user, size, submittedAt, position, state }] }.
+ */
+export async function getQueue(queue) {
+  const jobs = await listJobs(queue);
+  let printerState = 'unknown';
+  let activeJobId = null;
+  try {
+    const { stdout } = await execFileAsync(LPSTAT, ['-p', queue]);
+    // e.g. "printer G1010 now printing G1010-7.  enabled since ..."
+    const m = stdout.match(/now printing (\S+)/);
+    if (m) {
+      activeJobId = m[1].replace(/\.$/, '');
+      printerState = 'printing';
+    } else if (/is idle/.test(stdout)) {
+      printerState = 'idle';
+    } else if (/disabled/.test(stdout)) {
+      printerState = 'disabled';
+    }
+  } catch {
+    /* leave printerState 'unknown' */
+  }
+  return {
+    printerState,
+    jobs: jobs.map((j, i) => ({
+      ...j,
+      position: i + 1,
+      state: j.jobId === activeJobId ? 'printing' : 'pending',
+    })),
+  };
+}

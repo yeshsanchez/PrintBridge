@@ -485,3 +485,106 @@ body {
   background: var(--primary);
   color: #fff;
 }
+
+/* Ensure the hidden attribute always wins over display rules */
+[hidden] {
+  display: none !important;
+}
+
+/* Selected-files list */
+.dz-list {
+  text-align: left;
+}
+.dz-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+#listCount {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.file-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 230px;
+  overflow-y: auto;
+}
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  background: #f7f8fa;
+  border-radius: 12px;
+  padding: 9px 11px;
+}
+.file-row .file-ic {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+.add-more {
+  margin-top: 12px;
+  width: 100%;
+  border: 1px dashed #d7dbe3;
+  background: transparent;
+  color: var(--muted);
+  padding: 11px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.add-more:active {
+  transform: scale(0.99);
+}
+
+/* Queue rows */
+.job-pos {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #eef0f4;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.82rem;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.job-pos.live {
+  background: var(--mint);
+  color: var(--mint-ink);
+}
+.job-status.pending {
+  color: var(--muted);
+  background: #eef0f4;
+}
+.job-status.printing {
+  color: var(--mint-ink);
+  background: var(--mint);
+}
+.job-status .live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-right: 5px;
+  vertical-align: middle;
+  animation: pulse 1.1s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
