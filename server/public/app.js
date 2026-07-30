@@ -193,7 +193,7 @@ let fetching = false;
 
 async function refreshQueue() {
   if (!token()) {
-    jobsEl.innerHTML = `<li class="job empty"><button type="button" id="queueSettingsLink" class="link">Add your API key in Settings (⚙️, top-right) to see the queue</button></li>`;
+    jobsEl.innerHTML = `<li class="job empty"><button type="button" id="queueSettingsLink" class="muted-link">Add your API key in Settings (⚙️, top-right) to see the queue</button></li>`;
     document
       .getElementById("queueSettingsLink")
       ?.addEventListener("click", () => settings.classList.add("open"));

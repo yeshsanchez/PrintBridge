@@ -297,9 +297,17 @@ body {
 .link {
   border: 0;
   background: none;
-  color: var(--sky-ink);
+  color: #2563eb;
   font-weight: 600;
   font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+}
+.muted-link {
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
   cursor: pointer;
   padding: 0;
 }
