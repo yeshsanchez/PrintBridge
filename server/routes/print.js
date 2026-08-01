@@ -57,11 +57,13 @@ router.post('/', requireApiKey, (req, res) => {
       orientation: req.body.orientation,
       color: req.body.color,
       copies: req.body.copies,
+      pages: req.body.pages,
     };
     try {
       const jobId = await printFile(req.file.path, queue, options);
       return res.json({ jobId, status: 'queued' });
     } catch (e) {
+      if (e.status === 400) return res.status(400).json({ error: e.message });
       const detail = process.env.NODE_ENV !== 'production' ? e.stderr || e.message : undefined;
       return res.status(500).json({ error: 'Failed to submit print job', detail });
     } finally {

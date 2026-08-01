@@ -1,13 +1,13 @@
 // Minimal service worker: caches the app shell so the UI opens instantly
 // and works offline for its own assets. (Print/status calls always hit
 // the network — they can't be served from cache.)
-const CACHE = "printbridge-v1";
+const CACHE = "printbridge-v3";
 const SHELL = [
   "/",
   "/index.html",
   "/style.css",
   "/app.js",
-  "/icon.svg",
+  "/icon-192.png",
   "/manifest.webmanifest",
 ];
 

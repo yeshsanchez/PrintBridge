@@ -9,22 +9,48 @@ const LPSTAT = '/usr/bin/lpstat';
 
 const isDev = () => process.env.NODE_ENV !== 'production';
 
-// Whitelisted paper sizes. The real supported set comes from the driver
-// (`lpoptions -p <queue> -l`) once the G1010 is connected — refine then.
-const ALLOWED_MEDIA = new Set(['A4', 'Letter', 'Legal', 'A5', '4x6']);
+// UI paper value -> driver PageSize name. Most are identity, but the G1010's
+// Gutenprint driver (Canon G1000 series) names 4x6" photo paper "w288h432"
+// (288x432pt = 4x6in) rather than "4x6". Verified via `lpoptions -p G1010 -l`.
+const MEDIA_MAP = {
+  A4: 'A4',
+  Letter: 'Letter',
+  Legal: 'Legal',
+  A5: 'A5',
+  '4x6': 'w288h432',
+};
+
+/**
+ * Validate a user page-range string like "1,3-5,8". Returns a cleaned string,
+ * or null when empty (= all pages). Throws a 400-tagged error on malformed
+ * input so a bad range never silently prints every page.
+ */
+function normalizePageRanges(pages) {
+  if (pages == null) return null;
+  const clean = String(pages).replace(/\s+/g, '');
+  if (clean === '') return null;
+  if (!/^\d+(-\d+)?(,\d+(-\d+)?)*$/.test(clean)) {
+    const err = new Error('Invalid page range — use pages like 1-3, 5');
+    err.status = 400;
+    throw err;
+  }
+  return clean;
+}
 
 /**
  * Translate the UI's print options into `lp` CLI flags. Every value is whitelisted,
  * so only known-good options reach lp; anything unrecognized is dropped and the
  * printer default is used.
  */
-function buildLpOptions({ media, orientation, color, copies } = {}) {
+function buildLpOptions({ media, orientation, color, copies, pages } = {}) {
   const args = [];
   const n = parseInt(copies, 10);
   if (Number.isInteger(n) && n > 1 && n <= 99) args.push('-n', String(n));
-  if (ALLOWED_MEDIA.has(media)) args.push('-o', `media=${media}`);
+  if (MEDIA_MAP[media]) args.push('-o', `media=${MEDIA_MAP[media]}`);
   if (orientation === 'landscape') args.push('-o', 'orientation-requested=4');
   if (color === 'grayscale') args.push('-o', 'print-color-mode=monochrome');
+  const ranges = normalizePageRanges(pages);
+  if (ranges) args.push('-o', `page-ranges=${ranges}`);
   return args;
 }
 

@@ -209,6 +209,13 @@ printBtn.addEventListener("click", async () => {
   }
   if (!files.length) return;
 
+  // Page range: blank = all pages. Accept lists like "1-3, 5".
+  const pages = $("#optPages").value.replace(/\s+/g, "");
+  if (pages && !/^\d+(-\d+)?(,\d+(-\d+)?)*$/.test(pages)) {
+    showToast("Pages must look like 1-3, 5", "error");
+    return;
+  }
+
   printBtn.disabled = true;
   const total = files.length;
   let ok = 0;
@@ -221,6 +228,7 @@ printBtn.addEventListener("click", async () => {
     body.append("orientation", opts.orientation);
     body.append("color", opts.color);
     body.append("copies", String(opts.copies));
+    if (pages) body.append("pages", pages);
     try {
       const res = await fetch("/print", {
         method: "POST",
